@@ -5,9 +5,9 @@ bin=$srcdir/../../src/tnef
 tnef_file=$srcdir/test.tnef
 
 do_tnef () {
-    $bin $1 --debug --list $tnef_file >> $srcdir/maxsize.output 2>&1 
-#    cat $$.out $$.err >> $srcdir/maxsize.output
-#    rm -f $$.out $$.err
+    $bin $1 --debug --list $tnef_file > $$.out 2> $$.err
+    cat $$.out $$.err >> $srcdir/maxsize.output
+    rm -f $$.out $$.err
     echo >> $srcdir/maxsize.output
 }
 
