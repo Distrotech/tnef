@@ -1,3 +1,26 @@
+2005-02-01  verdammelt  <verdammelt@freya>
+
+        * ChangeLog, NEWS: new version
+	
+	* tests/files/baselines/MAPI_ATTACH_DATA_OBJ.baseline:
+	Fixing boolean output changes the baseline.
+
+	* tests/cmdline/version.baseline, configure.in: Bump the version number
+
+	* src/tnef.c (MAPI_GUID):
+	changed member types to ensure portability to 64 bit
+	system
+	(dump_mapi_attr): Fixed printing of boolean, Mac & Sparc platforms was
+	showing incorect value.
+	(decode_mapi): removed bogus C++ style comments
+	(save_rtf_data): C doesn't allow mixing declarations and statements
+	but GCC lets you!
+
+	* tnef.spec.in:
+	 made changes as suggested by jmsl@users.sf.net [BUG: #1102128]
+
+	* src/main.c: Updating copyright date
+
 2005-01-15  verdammelt  <verdammelt@freya>
 
 	* tnef.1.in: adding info about --save-rtf
