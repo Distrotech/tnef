@@ -19,13 +19,6 @@
 	* tests/cmdline/maxsize.test, tests/cmdline/maxsize.baseline:
 	Changing initial tests from 23 bytes to 25 bytes because on 64 bit
 	systems the sizeof(Attr) is 24 bytes itself, was causing the test to
-	fail due to different output (but not incorrect program operation).
-
-2005-02-13  verdammelt  <verdammelt@freya>
-
-	* tests/cmdline/maxsize.test, tests/cmdline/maxsize.baseline:
-	Changing initial tests from 23 bytes to 25 bytes because on 64 bit
-	systems the sizeof(Attr) is 24 bytes itself, was causing the test to
 	fail due to different output (but not incorrect program
 	operation). [Bug# 1121539]
 
