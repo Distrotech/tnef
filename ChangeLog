@@ -1,3 +1,9 @@
+2005-03-05  verdammelt  <verdammelt@freya>
+
+	* ChangeLog: update again.
+	
+	* maxsize.baseline: Updating baseline to match proper output
+
 2005-02-22  verdammelt  <verdammelt@freya>
 
         * NEWS, ChangeLog, configure.in: new version
