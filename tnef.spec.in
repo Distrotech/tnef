@@ -1,3 +1,4 @@
+# @configure_input@
 # rpm spec file for tnef 1.1.1
 Summary: Decodes MS-TNEF attachments.
 Name: @PACKAGE_NAME@

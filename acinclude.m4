@@ -45,3 +45,4 @@ then
 fi
 AC_MSG_RESULT("-DDEBUG for compilation")
 ])
+
