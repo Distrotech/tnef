@@ -407,6 +407,22 @@ geti16 ()
     return (uint16)GETINT16(buf);
 }
 
+/* Copy the GUID data from a character buffer */
+static void
+copy_guid_from_buf (MAPI_GUID* guid, char *buf)
+{
+    int i;
+    int idx = 0;
+    assert (guid);
+    assert (buf);
+
+    guid->data1 = GETINT32(buf + idx); idx += sizeof (uint32);
+    guid->data2 = GETINT16(buf + idx); idx += sizeof (uint16);
+    guid->data3 = GETINT16(buf + idx); idx += sizeof (uint16);
+    for (i = 0; i < 8; i++, idx += sizeof (uint8))
+	guid->data4[i] = (uint8)(buf[idx]);
+}
+
 /* Copy the date data from the attribute into a struct date */
 static void
 copy_date_from_attr (Attr* attr, struct date* dt)
@@ -592,7 +608,7 @@ dump_mapi_attr (MAPI_Attr* attr)
 	     name, type, (unsigned long)attr->num_values);
     if (attr->guid)
     {
-	fprintf (stdout, "\tGUID: { %04lx %02x %02x { ",
+	fprintf (stdout, "\tGUID: { %04x %02x %02x { ",
 		 attr->guid->data1, attr->guid->data2, attr->guid->data3);
 	for (i = 0; i < 8; i++)
 	    fprintf (stdout, "%x", attr->guid->data4[i]);
@@ -661,14 +677,14 @@ dump_mapi_attr (MAPI_Attr* attr)
 	case szMAPI_CLSID:
 	{
 	    int j;
-	    fprintf (stdout, "{%04lx %02x %02x ",
+	    fprintf (stdout, "{%04x %08x %08x ",
 		     attr->values[i].data.guid.data1,
 		     attr->values[i].data.guid.data2,
 		     attr->values[i].data.guid.data3);
 	    fprintf (stdout, "{");
 	    for (j = 0; i < 8; i++)
 	    {
-		fprintf (stdout, "%x",
+		fprintf (stdout, "%x ",
 			 attr->values[i].data.guid.data4[j]);
 	    }
 	    fprintf (stdout, "}");
@@ -843,7 +859,7 @@ decode_mapi (size_t len, char *buf)
 	    /* copy GUID */
 	    a->guid = CHECKED_MALLOC(1 * sizeof (MAPI_GUID));
 
-	    memmove (a->guid, buf+idx, sizeof(MAPI_GUID));
+	    copy_guid_from_buf(a->guid, buf+idx);
 	    idx += sizeof (MAPI_GUID);
 
 	    a->num_names = GETINT32(buf+idx); idx += 4;
@@ -916,7 +932,7 @@ decode_mapi (size_t len, char *buf)
 	    a->num_values = 1;
 	    v = alloc_mapi_values (a);
 	    v->len = sizeof (MAPI_GUID);
-	    memmove (&v->data, buf+idx, v->len);
+	    copy_guid_from_buf(&v->data.guid, buf+idx);
 	    idx += v->len;
 	    break;
 
