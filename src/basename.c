@@ -37,7 +37,7 @@ extern char *strrchr();
 #if !HAVE_BASENAME
 /* works like basename(1) (NOTE: the returned pointer must not be freed! */
 char*
-basename (const char* path)
+basename (char* path)
 {
     char *ptr = strrchr (path, '/');
     return ptr ? ptr + 1 : (char*)path;

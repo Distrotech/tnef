@@ -26,8 +26,9 @@
 #  include "config.h"
 #endif /* HAVE_CONFIG_H */
 
-extern char *
-basename (const char* path);
+#if !HAVE_DECL_BASENAME
+extern char * basename (char* path);
+#endif
 
 #if HAVE_BASENAME
 #  if HAVE_STRING_H
