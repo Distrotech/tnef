@@ -1,5 +1,6 @@
 /*
- * basename.h -- basename for platforms without.
+ * malloc.c -- replacement malloc function if provided malloc does not
+ *             handle malloc(0) well  
  *
  * Copyright (C)1999, 2000, 2001, 2002 Mark Simpson <damned@world.std.com>
  *
@@ -19,23 +20,22 @@
  * Inc.; 59 Temple Place, Suite 330; Boston, MA 02111-1307, USA.
  *
  */
-#ifndef BASENAME_H
-#define BASENAME_H
-
 #if HAVE_CONFIG_H
-#  include "config.h"
-#endif /* HAVE_CONFIG_H */
+# include <config.h>
+#endif
+#undef malloc
 
-extern char *
-basename (const char* path);
+#include <sys/types.h>
 
-#if HAVE_BASENAME
-#  if HAVE_STRING_H
-#    include <string.h>
-#  else
-#    include <strings.h>
-#  endif /* HAVE_STRING_H */
-#endif /* HAVE_BASENAME */
+char *malloc ();
 
+/* Allocate an N-byte block of memory from the heap.
+   If N is zero, allocate a 1-byte block.  */
 
-#endif /* !BASENAME_H */
+char *
+rpl_malloc (size_t n)
+{
+  if (n == 0)
+    n = 1;
+  return malloc (n);
+}
