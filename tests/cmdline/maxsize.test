@@ -5,9 +5,9 @@ bin=$srcdir/../../src/tnef
 tnef_file=$srcdir/test.tnef
 
 do_tnef () {
-    $bin $1 --debug --list $tnef_file > $$.out 2> $$.err
-    cat $$.out $$.err >> $srcdir/maxsize.output
-    rm -f $$.out $$.err
+    $bin $1 --debug --list $tnef_file >> $srcdir/maxsize.output 2>&1 
+#    cat $$.out $$.err >> $srcdir/maxsize.output
+#    rm -f $$.out $$.err
     echo >> $srcdir/maxsize.output
 }
 
@@ -15,16 +15,16 @@ rm -f maxsize.output
 touch maxsize.output
 
 # test the -x option
-do_tnef "-x 23"
+do_tnef "-x 25"
 
 # test the --maxsize option
-do_tnef --maxsize=23
+do_tnef --maxsize=25
 
 # invalid input
 do_tnef --maxsize=foo
 
 # negative input
-do_tnef --maxsize=-23
+do_tnef --maxsize=-25
 
 # zero input
 do_tnef --maxsize=0
