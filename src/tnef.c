@@ -116,18 +116,18 @@ typedef struct
 
 typedef struct
 {
-    unsigned long data1;
-    unsigned short data2;
-    unsigned short data3;
-    unsigned char data4[8];
+    uint32 data1;
+    uint16 data2;
+    uint16 data3;
+    uint8 data4[8];
 } MAPI_GUID;
 
 typedef struct
 {
-    unsigned short id;
-    unsigned short chbgtrp;
-    unsigned short cch;
-    unsigned short cb;
+    uint16 id;
+    uint16 chbgtrp;
+    uint16 cch;
+    uint16 cb;
 } TRP;
 
 typedef struct
@@ -635,7 +635,7 @@ dump_mapi_attr (MAPI_Attr* attr)
 
 	case szMAPI_BOOLEAN:
 	    fprintf (stdout, "%s",
-		     ((attr->values[i].data.bytes2 == 0) ? "false" : "true"));
+		     ((attr->values[i].data.bytes4 == 0) ? "false" : "true"));
 	    break;
 
 	case szMAPI_STRING:
@@ -885,7 +885,7 @@ decode_mapi (size_t len, char *buf)
 	    v = alloc_mapi_values (a);
 	    v->len = 2;
 	    v->data.bytes2 = GETINT16(buf+idx);
-	    idx += 4; // advance by 4!
+	    idx += 4; /* advance by 4! */
 	    break;
 
 	case szMAPI_INT:
@@ -1088,10 +1088,10 @@ get_rtf_data (size_t len, char *data, File *dest_file)
 static void
 save_rtf_data (char *rtf_file, MAPI_Attr **attrs)
 {
+    int i;
     File file;
     file.name = munge_fname(rtf_file);
 
-    int i;
     for (i = 0; attrs[i]; i++)
     {
 	MAPI_Attr* a = attrs[i];
