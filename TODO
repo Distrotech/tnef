@@ -6,3 +6,44 @@
 * Make more use out of the MAPI types... perhaps there are other useful
   things in them?
 
+2.x ideas:
+
+reorg:
+
+tnef/
+        data    -- contains mapi-names mapi-types &c
+
+        doc     -- obvious
+
+        c
+                lib     -- c library for tnef parsing
+                port    -- portability (strdup &c.)
+                app     -- builds tnef app.
+
+        lisp
+                lib     -- lisp library (native)
+                ffi-lib -- ffi based library
+                port    -- portability code
+                app     -- build tnef app.
+
+        tests   -- obvious.
+
+
+library layout:
+
+tnef data structures
+
+TNEF* create_tnef (filename) 
+int parse_tnef(TNEF*) -- basic parsing, does not 'collect files'
+int collect_files(TNEF*) -- gets file attributes together in logical units
+void destroy_tnef (TNEF*) -- frees memory
+
+hook functions used for when an attribute is read in, when a mapi
+attribute is read in, when a file is collected.
+
+large attributes(BINARY &c) will not be read in from the file until
+they are needed.
+
+
+        
+
