@@ -1,3 +1,42 @@
+2005-02-22  verdammelt  <verdammelt@freya>
+
+        * NEWS, ChangeLog, configure.in: new version
+	
+	* tests/cmdline/version.baseline: new version
+
+	* tests/cmdline/maxsize.test: refixing
+
+2005-02-13  verdammelt  <verdammelt@freya>
+
+	* tests/cmdline/maxsize.test, tests/cmdline/maxsize.baseline:
+	Changing initial tests from 23 bytes to 25 bytes because on 64 bit
+	systems the sizeof(Attr) is 24 bytes itself, was causing the test to
+	fail due to different output (but not incorrect program operation).
+
+2005-02-13  verdammelt  <verdammelt@freya>
+
+	* tests/cmdline/maxsize.test, tests/cmdline/maxsize.baseline:
+	Changing initial tests from 23 bytes to 25 bytes because on 64 bit
+	systems the sizeof(Attr) is 24 bytes itself, was causing the test to
+	fail due to different output (but not incorrect program
+	operation). [Bug# 1121539]
+
+2005-02-12  verdammelt  <verdammelt@freya>
+
+	* src/main.c (parse_cmdline):
+	ignoring negative values to maxsize option. [Bug# 1121539]
+
+2005-02-11  verdammelt  <verdammelt@freya>
+
+	* tnef.c (copy_guid_from_buf):
+	[Bug# 1117373].  New function to parse a GUID
+	from a character buffer correctly; big endian machines interpreted it
+	incorrectly, forcing to be dealt with as little endian number.
+
+	(decode_mapi): Use of new function
+
+	(dump_mapi_attr): Fixing compiler warnings
+
 2005-02-07  verdammelt  <verdammelt@freya>
 
 	* configure.in: adding stroul to checked functions
