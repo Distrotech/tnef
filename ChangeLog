@@ -1,5 +1,14 @@
+2005-02-07  verdammelt  <verdammelt@freya>
+
+	* configure.in: adding stroul to checked functions
+
+	* configure.in, src/basename.h, src/basename.c:
+	[Bug# 1109683] - fixing declaration of basename
+
 2005-02-05  verdammelt  <verdammelt@freya>
 
+        * Release v1.3.1
+	
 	* tests/cmdline/version.baseline:
 	removing extra spaces which screwed up the test
 
