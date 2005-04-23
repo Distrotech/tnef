@@ -774,6 +774,7 @@ decode_object (void)
 	attr->type = (type_and_name >> 16);
 	attr->name = ((type_and_name << 16) >> 16);
 	attr->len = geti32();
+
 	attr->buf = CHECKED_CALLOC (attr->len, sizeof(char));
 
 	bytes_read = fread (attr->buf, 1, attr->len, g_file);
@@ -983,6 +984,7 @@ mapi_attr_free (MAPI_Attr* attr)
 	    }
 	}
 	FREE (attr->values);
+	FREE (attr->guid);
 	memset (attr, '\0', sizeof (MAPI_Attr));
     }
 }
