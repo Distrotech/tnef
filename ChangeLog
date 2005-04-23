@@ -1,3 +1,18 @@
+2005-04-23  verdammelt  <verdammelt@freya>
+
+	* tnef.c: fixing memory leak with GUID
+
+2005-03-07  verdammelt  <verdammelt@freya>
+
+	* main.c: ignoring negative maxsize options
+
+	* common.h: moving formatting macros to write.c
+
+	* mapi_attr.c: using new copy_guid_from_attr function
+
+	* write.h, write.c: New output methods for signed integers
+	Updating other output methods
+
 2005-03-05  verdammelt  <verdammelt@freya>
 
         * Release v1.3.2
