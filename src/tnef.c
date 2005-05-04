@@ -171,9 +171,23 @@ typedef struct
 {
     char * name;
     size_t len;
-    char * data;
+    char *data;
     struct date dt;
 } File;
+
+typedef struct
+{
+    VarLenData **text_body;
+    VarLenData **html_bodies;
+    VarLenData **rtf_bodies;
+} MessageBody;
+
+typedef enum
+{
+    TEXT = 't',
+    HTML = 'h',
+    RTF = 'r'
+} MessageBodyTypes;
 
 
 /* ********************
@@ -831,6 +845,39 @@ alloc_mapi_values (MAPI_Attr* a)
     return NULL;
 }
 
+static char*
+unicode_to_utf8 (size_t len, char* buf)
+{
+    int i = 0;
+    int j = 0;
+    char *utf8 = malloc (3 * len/2 + 1); /* won't get any longer than this */
+
+    for (i = 0; i < len - 1; i += 2)
+    {
+	uint32 c = GETINT16(buf + i);
+	if (c <= 0x007f)
+	{
+	    utf8[j++] = 0x00 | ((c & 0x007f) >> 0);
+	}
+	else if (c < 0x07ff)
+	{
+	    utf8[j++] = 0xc0 | ((c & 0x07c0) >> 6);
+	    utf8[j++] = 0x80 | ((c & 0x003f) >> 0);
+	}
+	else
+	{
+	    utf8[j++] = 0xe0 | ((c & 0xf000) >> 12);
+	    utf8[j++] = 0x80 | ((c & 0x0fc0) >> 6);
+	    utf8[j++] = 0x80 | ((c & 0x003f) >> 0);
+	}
+    }
+    
+    utf8[j] = '\0';
+    
+    return utf8;
+}
+
+
 /* parses out the MAPI attibutes hidden in the character buffer */
 static MAPI_Attr**
 decode_mapi (size_t len, char *buf)
@@ -949,11 +996,19 @@ decode_mapi (size_t len, char *buf)
 	    for (val_idx = 0; val_idx < a->num_values; val_idx++)
 	    {
 		v[val_idx].len = GETINT32(buf+idx); idx += 4;
-		v[val_idx].data.buf 
-		    = CHECKED_MALLOC(v[val_idx].len * sizeof (char));
-		memmove (v[val_idx].data.buf,
-			 buf+idx,
-			 v[val_idx].len);
+		if (a->type == szMAPI_UNICODE_STRING)
+		{
+		    v[val_idx].data.buf 
+			= unicode_to_utf8(v[val_idx].len, buf+idx);
+		}
+		else
+		{
+		    v[val_idx].data.buf 
+			= CHECKED_MALLOC(v[val_idx].len * sizeof (char));
+		    memmove (v[val_idx].data.buf,
+			     buf+idx,
+			     v[val_idx].len);
+		}
 		idx += pad_to_4byte(v[val_idx].len);
 	    }
 	}
@@ -1072,7 +1127,8 @@ decompress_rtf_data (unsigned char *src, size_t len)
 }
 
 static void
-get_rtf_data (size_t len, char *data, File *dest_file)
+get_rtf_data_from_buf (size_t len, char *data, 
+		       size_t *out_len, char **out_buf)
 {
     size_t compr_size = 0L;
     size_t uncompr_size = 0L;
@@ -1088,52 +1144,59 @@ get_rtf_data (size_t len, char *data, File *dest_file)
     /* sanity check */
     /* assert (compr_size + 4 == len); */
 
-    dest_file->len = uncompr_size;
+    (*out_len) = uncompr_size;
 
     if (magic == 0x414c454d)	/* uncopressed rtf stream */
     {
-	dest_file->data = CHECKED_CALLOC(dest_file->len, 1);
-	memmove (dest_file->data, data+4, uncompr_size);
+	(*out_buf) = CHECKED_CALLOC(uncompr_size, 1);
+	memmove ((*out_buf), data+idx, uncompr_size);
     }
     else if (magic == 0x75465a4c) /* compressed rtf stream */
     {
-	dest_file->data 
+	(*out_buf)
 	    = decompress_rtf_data (data+idx, uncompr_size);
     }
 }
 
 
-static void
-save_rtf_data (char *rtf_file, MAPI_Attr **attrs)
+static VarLenData**
+get_rtf_data (MAPI_Attr *a)
 {
-    int i;
-    File file;
-    file.name = munge_fname(rtf_file);
+    VarLenData** body 
+	= (VarLenData**)CALLOC(a->num_values + 1, sizeof(VarLenData*));
 
-    for (i = 0; attrs[i]; i++)
+    int j;
+    for (j = 0; j < a->num_values; j++)
     {
-	MAPI_Attr* a = attrs[i];
-	if (a->name == MAPI_RTF_COMPRESSED)
+	if (is_rtf_data (a->values[j].data.buf))
 	{
-	    int j;
-	    for (j = 0; j < a->num_values; j++)
-	    {
-		size_t len = a->values[j].len;
-		void *data = a->values[j].data.buf;
-		if (j > 0)
-		{
-		    file.name = find_free_number (rtf_file);
-		}
+	    body[j] = (VarLenData*)MALLOC(1 * sizeof(VarLenData));
 
-		if (is_rtf_data ((char*)data))
-		{
-		    get_rtf_data (len, (char*)data, &file);
-		    file_write (&file);
-		}
-	    }
+	    get_rtf_data_from_buf (a->values[j].len,
+				   a->values[j].data.buf,
+				   &body[j]->len, &body[j]->data);
 	}
     }
+    return body;
 }
+
+static VarLenData**
+get_html_data (MAPI_Attr *a)
+{
+    VarLenData **body = CALLOC(a->num_values + 1, sizeof (VarLenData*));
+
+    int j;
+    for (j = 0; j < a->num_values; j++)
+    {
+	body[j] = (VarLenData*)MALLOC(1 * sizeof(VarLenData));
+	body[j]->len = a->values[j].len;
+	body[j]->data = (char*)CHECKED_CALLOC(a->values[j].len,
+					     sizeof(char));
+	memmove (body[j]->data, a->values[j].data.buf, body[j]->len);
+    }
+    return body;
+}
+
 
 static void
 file_add_mapi_attrs (File* file, MAPI_Attr** attrs)
@@ -1201,15 +1264,75 @@ file_add_attr (File* file, Attr* attr)
     }
 }
 
+static File**
+get_body_files (const char* filename,
+		const char pref,
+		const MessageBody* body)
+{
+    File **files = NULL;
+    VarLenData **data;
+    char *ext = "";
+    int i;
+
+    switch (pref)
+    {
+    case 'r':
+	data = body->rtf_bodies;
+	ext = ".rtf";
+	break;
+    case 'h':
+	data = body->html_bodies;
+	ext = ".html";
+	break;
+    case 't':
+	data = body->text_body;
+	ext = ".txt";
+	break;
+    default:
+	data = NULL;
+	break;
+    }
+
+    if (data)
+    {
+	int count = 0;
+	char *tmp 
+	    = (char*)CHECKED_CALLOC (strlen(filename) + strlen(ext) + 1, 
+				     sizeof(char*));
+	strcpy (tmp, filename);
+	strcat (tmp, ext);
+
+	/* first get a count */
+	while (data[count++]);
+
+	files = (File**)CALLOC(count + 1, sizeof (File*));
+	for (i = 0; data[i]; i++)
+	{
+	    files[i] = (File*)CALLOC(1, sizeof(File));
+	    files[i]->name = munge_fname(tmp);
+	    files[i]->len = data[i]->len;
+	    files[i]->data 
+		= (char*)CHECKED_MALLOC(data[i]->len * sizeof(char));
+	    memmove (files[i]->data, data[i]->data, data[i]->len);
+	}
+    }
+    return files;
+}
+
+
 
 /* The entry point into this module.  This parses an entire TNEF file. */
 int
-parse_file (FILE* input_file, char* directory, char *rtf_file, int flags)
+parse_file (FILE* input_file, char* directory, 
+	    char *body_filename, char *body_pref,
+	    int flags)
 {
     uint32 d;
     uint16 key;
-    File *file = NULL;
     Attr *attr = NULL;
+    File *file = NULL;
+    MessageBody body;
+    memset (&body, '\0', sizeof (MessageBody));
 
     /* store the program options in our file global variables */
     g_file = input_file;
@@ -1250,31 +1373,42 @@ parse_file (FILE* input_file, char* directory, char *rtf_file, int flags)
 	switch (attr->lvl_type)
 	{
 	case LVL_MESSAGE:
-	    /* We currently have no use for these attributes */
- 	    if (attr->name == attMAPIPROPS) 
- 	    { 
- 		MAPI_Attr **mapi_attrs = decode_mapi (attr->len, attr->buf); 
- 		if (mapi_attrs) 
- 		{ 
-		    /* save the rtf if wanted */
-		    if (flags & SAVERTF)
+	    if (attr->name == attBODY)
+	    {
+		body.text_body = (VarLenData**)CALLOC(2, sizeof(VarLenData*));
+		body.text_body[0] = (VarLenData*)CALLOC(1, sizeof(VarLenData));
+		body.text_body[0]->len = attr->len;
+		body.text_body[0]->data = (char*)CHECKED_CALLOC(attr->len,
+							    sizeof(char));
+		memmove (body.text_body[0]->data, attr->buf, attr->len);
+	    }
+	    else if (attr->name == attMAPIPROPS) 
+	    { 
+		MAPI_Attr **mapi_attrs 
+		    = decode_mapi (attr->len, attr->buf); 
+		if (mapi_attrs)
+		{ 
+		    int i;
+		    for (i = 0; mapi_attrs[i]; i++)
 		    {
-			if (!rtf_file) 
+			MAPI_Attr *a = mapi_attrs[i];
+			    
+			if (a->name == MAPI_BODY_HTML)
 			{
-			    char *tmp = concat_fname (g_directory, "tnef-rtf-tmp");
-			    rtf_file = find_free_number (tmp);
-			    FREE (tmp);
+			    body.html_bodies = get_html_data (a);
 			}
-			save_rtf_data (rtf_file, mapi_attrs);
+			else if (a->name == MAPI_RTF_COMPRESSED)
+			{
+			    body.rtf_bodies = get_rtf_data (a);
+			}
 		    }
-
-		    /* cannot save attributes to file, since they are 
-		       not attachment attributes */
+		    /* cannot save attributes to file, since they
+		     * are not attachment attributes */ 
 		    /* file_add_mapi_attrs (file, mapi_attrs); */
- 		    mapi_attr_free_list (mapi_attrs); 
- 		    FREE (mapi_attrs); 
- 		} 
- 	    } 
+		    mapi_attr_free_list (mapi_attrs); 
+		    FREE (mapi_attrs); 
+		}
+	    }
 	    break;
 	case LVL_ATTACHMENT:
 	    file_add_attr (file, attr);
@@ -1293,6 +1427,35 @@ parse_file (FILE* input_file, char* directory, char *rtf_file, int flags)
 	file_write (file);
 	file_free (file);
 	FREE (file);
+    }
+    
+    /* Write the message body */
+    if (flags & SAVEBODY)
+    {
+	int i = 0;
+	int all_flag = 0;
+	if (strcmp (body_pref, "all") == 0) 
+	{
+	    all_flag = 1;
+	    body_pref = "rht";
+	}
+
+	for (; i < 3; i++)
+	{
+	    File **files
+		= get_body_files (body_filename, body_pref[i], &body);
+	    if (files)
+	    {
+		int j = 0; 
+		for (; files[j]; j++)
+		{
+		    file_write(files[j]);
+		    file_free (files[j]);
+		}
+		FREE(files);
+		if (!all_flag) break;
+	    }
+	}
     }
     return 0;
 }
