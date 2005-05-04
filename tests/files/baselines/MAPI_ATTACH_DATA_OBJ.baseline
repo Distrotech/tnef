@@ -91,7 +91,7 @@ TNEF Key: 1af
 	#0 [len: 1] = 
 (MAPI) MAPI_NORMALIZED_SUBJECT [type: MAPI string] [num_values = 1] = 
 	#0 [len: 19] = Bodø-damer på vei!
-(MAPI) 1035 [type: MAPI string] [num_values = 1] = 
+(MAPI) MAPI_SMTP_MESSAGE_ID [type: MAPI string] [num_values = 1] = 
 	#0 [len: 48] = <BBDA395B19A3D3119A0E0000F8D02CA902AEBCE8@ODIN>
 (MAPI) MAPI_READ_RECEIPT_REQUESTED [type: MAPI boolean (16 bits)] [num_values = 1] = 
 	#0 [len: 4] = false

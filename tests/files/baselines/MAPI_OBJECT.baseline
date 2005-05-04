@@ -100,7 +100,7 @@ TNEF Key: 8
 	#0 [len: 1] = 
 (MAPI) MAPI_NORMALIZED_SUBJECT [type: MAPI string] [num_values = 1] = 
 	#0 [len: 30] = OCTOBER DISCOUNTED PRICE LIST
-(MAPI) 1035 [type: MAPI string] [num_values = 1] = 
+(MAPI) MAPI_SMTP_MESSAGE_ID [type: MAPI string] [num_values = 1] = 
 	#0 [len: 60] = <BF55F48D9D4AD51190C500D0B7BB2C6E089088FE@xau03.aus.hp.com>
 (MAPI) MAPI_READ_RECEIPT_REQUESTED [type: MAPI boolean (16 bits)] [num_values = 1] = 
 	#0 [len: 4] = false
