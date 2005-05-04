@@ -52,20 +52,22 @@ struct date
 };
 
 /* flags to modify behaviour of file parsing */
-enum { NONE    	= 0x00,
-       VERBOSE 	= 0x01,
-       DBG_OUT 	= 0x02,
-       LIST    	= 0x04,
-       PATHS   	= 0x08,
-       OVERWRITE= 0x10,
-       CONFIRM 	= 0x20,
-       NUMBERED = 0x40,
-       SAVERTF  = 0x80
+enum { NONE    	= 0x000,
+       VERBOSE 	= 0x001,
+       DBG_OUT 	= 0x002,
+       LIST    	= 0x004,
+       PATHS   	= 0x008,
+       OVERWRITE= 0x010,
+       CONFIRM 	= 0x020,
+       NUMBERED = 0x040,
+       SAVEBODY = 0x080
 };
 
 /* Main entrance point to tnef processing */
 extern int
-parse_file(FILE *input, char * output_dir, char *rtf_file, int flags);
+parse_file(FILE *input, char * output_dir, 
+	   char *body_file, char *body_pref,
+	   int flags);
 
 #endif /* !TNEF_H */
 
