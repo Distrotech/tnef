@@ -3,7 +3,7 @@
 . $srcdir/../util.sh
 . $srcdir/file-util.sh
 
-TEST_EXTRA_ARGS=--save-rtf=message.rtf
+TEST_EXTRA_ARGS=--save-body=message
 
 cleanup
 mktestdir
