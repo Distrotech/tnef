@@ -251,3 +251,4 @@ TNEF Key: ea64
 	#0 [len: 4] = 145405
 (MAPI) MAPI_MDB_PROVIDER [type: MAPI binary] [num_values = 1] = 
 	#0 [len: 16] = 4e 49 54 41 f9 bf b8 01 00 aa ...
+WRITING ./triples.dir/triples-body.rtf

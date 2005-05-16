@@ -150,3 +150,4 @@ TNEF Key: 8
 (MAPI) MAPI_ATTACH_DATA_OBJ [type: MAPI embedded object] [num_values = 1] = 
 	#0 [len: 628240] = 0b 00 00 00 00 00 00 00 c0 00 ...
 WRITING ./MAPI_OBJECT.dir/Untitled_Attachment
+WRITING ./MAPI_OBJECT.dir/MAPI_OBJECT-body.rtf

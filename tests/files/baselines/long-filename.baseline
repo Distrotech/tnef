@@ -215,3 +215,4 @@ TNEF Key: 1422
 (MAPI) MAPI_RECORD_KEY [type: MAPI binary] [num_values = 1] = 
 	#0 [len: 16] = 56 ce 05 bc 1f 9d d3 11 a7 a6 ...
 WRITING ./long-filename.dir/allproductsmar2000.dat
+WRITING ./long-filename.dir/long-filename-body.rtf
