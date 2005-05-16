@@ -1181,6 +1181,17 @@ get_rtf_data (MAPI_Attr *a)
 }
 
 static VarLenData**
+get_text_data (Attr *attr)
+{
+    VarLenData **bodies = (VarLenData**)CALLOC(2, sizeof(VarLenData*));
+    bodies[0] = (VarLenData*)CALLOC(1, sizeof(VarLenData));
+    bodies[0]->len = attr->len;
+    bodies[0]->data = (char*)CHECKED_CALLOC(attr->len, sizeof(char));
+    memmove (bodies[0]->data, attr->buf, attr->len);
+    return bodies;
+}
+
+static VarLenData**
 get_html_data (MAPI_Attr *a)
 {
     VarLenData **body = CALLOC(a->num_values + 1, sizeof (VarLenData*));
@@ -1375,12 +1386,7 @@ parse_file (FILE* input_file, char* directory,
 	case LVL_MESSAGE:
 	    if (attr->name == attBODY)
 	    {
-		body.text_body = (VarLenData**)CALLOC(2, sizeof(VarLenData*));
-		body.text_body[0] = (VarLenData*)CALLOC(1, sizeof(VarLenData));
-		body.text_body[0]->len = attr->len;
-		body.text_body[0]->data = (char*)CHECKED_CALLOC(attr->len,
-							    sizeof(char));
-		memmove (body.text_body[0]->data, attr->buf, attr->len);
+		body.text_body = get_text_data (attr);
 	    }
 	    else if (attr->name == attMAPIPROPS) 
 	    { 
