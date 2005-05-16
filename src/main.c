@@ -104,7 +104,7 @@ usage (char* prog)
 static char*
 validate_body_pref (char *optarg)
 {
-    int i;
+    int i = 0;
     char *pref;
 
     if (optarg == NULL)
@@ -126,9 +126,9 @@ validate_body_pref (char *optarg)
     /* 'all' is a special setting, do not validate */
     if (strcmp (pref, "all") != 0)
     {
-	for (i = 0; i < 3; i++)
+	i = 0;
+	while (pref[i])
 	{
-	    pref[i] = tolower(pref[i]);
 	    if (pref[i] != 'r'
 		&& pref[i] != 'h'
 		&& pref[i] != 't')
@@ -137,6 +137,7 @@ validate_body_pref (char *optarg)
 			 "--body-pref setting can only contain R, H or T.\n");
 		abort();
 	    }
+	    i++;
 	}
     }
     return pref;
