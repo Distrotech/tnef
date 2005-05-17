@@ -1,6 +1,7 @@
 EXTRA_DIST	=	help.test help.baseline			\
 			version.test version.baseline		\
 			basic.test basic.baseline		\
+			body.test body.baseline			\
 			debug.test debug.baseline		\
 			list.test list.baseline			\
 			verbose.test verbose.baseline		\
