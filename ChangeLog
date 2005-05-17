@@ -4,6 +4,14 @@
 	
 	* NEWS, configure.in, ChangeLog: New version
 
+	* src/main.c: (parse_cmdline): fixing small bug in shifting
+	argument to all lowercase.
+
+	* tests/cmdline/Makefile.am, 
+	* tests/files/datafile/Makefile.am,
+	* tests/files/baselines/Makefile.am:
+	New items for distribution.
+	
 	* acinclude.m4: (AC_COMPILE_WARNINGS, AC_DEBUG_COMPILE) fixing
 	quoting warning.
 
