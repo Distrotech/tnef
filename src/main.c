@@ -83,6 +83,7 @@ static const char* USAGE = \
 "        --use-paths     \tUse pathnames for files if found in the TNEF\n" 
 "                        \t  file (for security reasons paths to included\n"
 "                        \t  files are ignored by default)\n"
+"        --save-rtf[=FILE]\t[DEPRECATED] Save the RTF message body to a file\n"
 "        --save-body[=FILE]\tSave the message body to a file\n"
 "-h,     --help          \tshow this message\n"
 "-V,     --version       \tdisplay version and copyright\n"
@@ -168,6 +169,7 @@ parse_cmdline (int argc, char **argv,
         {"number-backups", no_argument, 0, 0 },
         {"overwrite", no_argument, 0, 0 },
         {"use-paths", no_argument, 0, 0},
+	{"save-rtf", optional_argument, 0, 0 },
 	{"save-body", optional_argument, 0, 0 },
 	{"body-pref", required_argument, 0, 0 },
         {"verbose", no_argument, 0, 'v'},
@@ -204,6 +206,16 @@ parse_cmdline (int argc, char **argv,
             {
                 *flags |= NUMBERED;
             }
+	    else if (strcmp (long_options[option_index].name,
+			     "save-rtf") == 0)
+	    {
+		fprintf (stderr, "--save-rtf is a deprecated feature."
+			 "  Use --save-body[=FILE] and "
+			 "--body-pref=r instead.\n");
+		*flags |= SAVEBODY;
+		(*body_file) = strdup(((optarg) ? optarg : "message"));
+		(*body_pref) = strdup("r");
+	    }
 	    else if (strcmp (long_options[option_index].name,
 			     "save-body") == 0)
 	    {
