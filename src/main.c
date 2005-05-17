@@ -107,6 +107,7 @@ validate_body_pref (char *optarg)
 {
     int i = 0;
     char *pref;
+    char *p;
 
     if (optarg == NULL)
     {
@@ -120,9 +121,10 @@ validate_body_pref (char *optarg)
     }
     
     pref = strdup (optarg);
+    p = pref;
 
     /* shift to all lower case */
-    while ((pref[i] = tolower(pref[i++])));
+    while ((*p = tolower(*p))) p++;
 
     /* 'all' is a special setting, do not validate */
     if (strcmp (pref, "all") != 0)
