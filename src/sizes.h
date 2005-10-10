@@ -20,7 +20,7 @@
  * Inc.; 59 Temple Place, Suite 330; Boston, MA 02111-1307, USA.
  *
  * Commentary: 
- * Defines the sizes appropriately.  oonfig.h must be inculded before
+ * Defines the sizes appropriately.  config.h must be inculded before
  * this file.
  */
 #ifndef SIZES_H
