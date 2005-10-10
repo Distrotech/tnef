@@ -1089,7 +1089,7 @@ decompress_rtf_data (unsigned char *src, size_t len)
 
     out = rtf_prebuf_len;
 
-    while (out < len)
+    while (out < len + rtf_prebuf_len)
     {
 	/* each flag byte flags 8 literals/references, 1 per bit */
 	flags = (((flag_count++ % 8) == 0) ? src[in++] : flags >> 1);
