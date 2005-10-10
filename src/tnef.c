@@ -63,7 +63,7 @@ extern char*
 tempnam(const char*, const char*);
 
 /* Needed to transform char buffers into little endian numbers */
-uint32 GETINT32(char *p)
+uint32 GETINT32(unsigned char *p)
 {
     return (uint32)((uint8)(p)[0]           \
 		    +((uint8)(p)[1]<<8)     \
@@ -71,7 +71,7 @@ uint32 GETINT32(char *p)
 		    +((uint8)(p)[3]<<24));
 }
 
-uint16 GETINT16 (char* p)
+uint16 GETINT16 (unsigned char* p)
 {
     return (uint16)((uint8)(p)[0]+((uint8)(p)[1]<<8));
 }
@@ -111,7 +111,7 @@ typedef struct
     uint16 type;
     uint16 name;
     size_t len;
-    char* buf;
+    unsigned char* buf;
 } Attr;
 
 typedef struct
@@ -133,8 +133,8 @@ typedef struct
 typedef struct
 {
     TRP trp;
-    char* sender_display_name;
-    char* sender_address;
+    unsigned char* sender_display_name;
+    unsigned char* sender_address;
 } TRIPLE;
 
 typedef struct
@@ -142,7 +142,7 @@ typedef struct
     size_t len;
     union
     {
-	char *buf;
+	unsigned char *buf;
 	uint16 bytes2;
 	uint32 bytes4;
 	uint32 bytes8[2];
@@ -153,7 +153,7 @@ typedef struct
 typedef struct
 {
     size_t len;
-    char* data;
+    unsigned char* data;
 } VarLenData;
 
 typedef struct
@@ -423,16 +423,16 @@ geti16 ()
 
 /* Copy the GUID data from a character buffer */
 static void
-copy_guid_from_buf (MAPI_GUID* guid, char *buf)
+copy_guid_from_buf (MAPI_GUID* guid, unsigned char *buf)
 {
     int i;
     int idx = 0;
     assert (guid);
     assert (buf);
 
-    guid->data1 = GETINT32(buf + idx); idx += sizeof (uint32);
-    guid->data2 = GETINT16(buf + idx); idx += sizeof (uint16);
-    guid->data3 = GETINT16(buf + idx); idx += sizeof (uint16);
+    guid->data1 = GETINT32((unsigned char*)buf + idx); idx += sizeof (uint32);
+    guid->data2 = GETINT16((unsigned char*)buf + idx); idx += sizeof (uint16);
+    guid->data3 = GETINT16((unsigned char*)buf + idx); idx += sizeof (uint16);
     for (i = 0; i < 8; i++, idx += sizeof (uint8))
 	guid->data4[i] = (uint8)(buf[idx]);
 }
@@ -845,12 +845,12 @@ alloc_mapi_values (MAPI_Attr* a)
     return NULL;
 }
 
-static char*
-unicode_to_utf8 (size_t len, char* buf)
+static unsigned char*
+unicode_to_utf8 (size_t len, unsigned char* buf)
 {
     int i = 0;
     int j = 0;
-    char *utf8 = malloc (3 * len/2 + 1); /* won't get any longer than this */
+    unsigned char *utf8 = malloc (3 * len/2 + 1); /* won't get any longer than this */
 
     for (i = 0; i < len - 1; i += 2)
     {
@@ -880,7 +880,7 @@ unicode_to_utf8 (size_t len, char* buf)
 
 /* parses out the MAPI attibutes hidden in the character buffer */
 static MAPI_Attr**
-decode_mapi (size_t len, char *buf)
+decode_mapi (size_t len, unsigned char *buf)
 {
     size_t idx = 0;
     uint32 i;
@@ -1056,7 +1056,7 @@ mapi_attr_free_list (MAPI_Attr** attrs)
 }
 
 static int
-is_rtf_data (char *data)
+is_rtf_data (unsigned char *data)
 {
     size_t compr_size = 0L;
     size_t uncompr_size = 0L;
@@ -1072,7 +1072,7 @@ is_rtf_data (char *data)
     return 0;
 }
 
-static char*
+static unsigned char*
 decompress_rtf_data (unsigned char *src, size_t len)
 {
     const char* rtf_prebuf = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier{\\colortbl\\red0\\green0\\blue0\n\r\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
@@ -1082,8 +1082,8 @@ decompress_rtf_data (unsigned char *src, size_t len)
     int out = 0;
     int flag_count = 0;
     int flags = 0;
-    char *ret = NULL;
-    char *dest = CHECKED_CALLOC(rtf_prebuf_len + len, 1);
+    unsigned char *ret = NULL;
+    unsigned char *dest = CHECKED_CALLOC(rtf_prebuf_len + len, 1);
 
     memmove (dest, rtf_prebuf, rtf_prebuf_len);
 
@@ -1127,8 +1127,8 @@ decompress_rtf_data (unsigned char *src, size_t len)
 }
 
 static void
-get_rtf_data_from_buf (size_t len, char *data, 
-		       size_t *out_len, char **out_buf)
+get_rtf_data_from_buf (size_t len, unsigned char *data, 
+		       size_t *out_len, unsigned char **out_buf)
 {
     size_t compr_size = 0L;
     size_t uncompr_size = 0L;
@@ -1186,7 +1186,7 @@ get_text_data (Attr *attr)
     VarLenData **bodies = (VarLenData**)CALLOC(2, sizeof(VarLenData*));
     bodies[0] = (VarLenData*)CALLOC(1, sizeof(VarLenData));
     bodies[0]->len = attr->len;
-    bodies[0]->data = (char*)CHECKED_CALLOC(attr->len, sizeof(char));
+    bodies[0]->data = (unsigned char*)CHECKED_CALLOC(attr->len, sizeof(unsigned char));
     memmove (bodies[0]->data, attr->buf, attr->len);
     return bodies;
 }
@@ -1201,8 +1201,8 @@ get_html_data (MAPI_Attr *a)
     {
 	body[j] = (VarLenData*)MALLOC(1 * sizeof(VarLenData));
 	body[j]->len = a->values[j].len;
-	body[j]->data = (char*)CHECKED_CALLOC(a->values[j].len,
-					     sizeof(char));
+	body[j]->data = (unsigned char*)CHECKED_CALLOC(a->values[j].len,
+					     sizeof(unsigned char));
 	memmove (body[j]->data, a->values[j].data.buf, body[j]->len);
     }
     return body;
@@ -1224,7 +1224,7 @@ file_add_mapi_attrs (File* file, MAPI_Attr** attrs)
 	    {
 	    case MAPI_ATTACH_LONG_FILENAME:
 		if (file->name) FREE(file->name);
-		file->name = munge_fname (a->values[0].data.buf);
+		file->name = munge_fname ((char*)a->values[0].data.buf);
 		break;
 
 	    case MAPI_ATTACH_DATA_OBJ:
@@ -1264,7 +1264,7 @@ file_add_attr (File* file, Attr* attr)
     break;
 
     case attATTACHTITLE:
-	file->name = munge_fname (attr->buf);
+	file->name = munge_fname ((char*)attr->buf);
 	break;
 
     case attATTACHDATA:
