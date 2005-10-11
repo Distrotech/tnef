@@ -1,3 +1,35 @@
+2005-10-11  verdammelt  <verdammelt@freya>
+
+	* Release v1.3.4
+	
+        * ChangeLog: New version
+	
+	* configure.in, tests/cmdline/version.baseline: fixing version number
+
+	* tests/files/baselines/triples-body.rtf.baseline, tests/files/baselines/rtf-body.rtf.baseline, tests/files/baselines/missing-filenames-body.rtf.baseline, tests/files/baselines/MAPI_OBJECT-body.rtf.baseline, tests/files/baselines/MAPI_ATTACH_DATA_OBJ-body.rtf.baseline, tests/files/baselines/long-filename-body.rtf.baseline, tests/files/baselines/data-before-name-body.rtf.baseline, tests/cmdline/triples-test-2.rtf.baseline, tests/cmdline/rtf-test.rtf.baseline:
+	updating RTF file baselines given new RTF decompression fix.
+
+2005-10-10  verdammelt  <verdammelt@freya>
+
+	* src/tnef.c:
+	Changing various 'char*' declarations for binary data to 'unsigned
+	char*' to fix compiler warnings.
+
+	* src/tnef.c (decompress_rtf_buf):
+	fixing bug #1318728 (problem with length during
+	uncompressing of rtf data)
+
+2005-10-08  verdammelt  <verdammelt@freya>
+
+	* contrib/evolution.helper, contrib/evolution.helper.README:
+	Adding contrib diretory with evolution helper script to begin with.
+
+	* contrib/evolution.helper, contrib/evolution.helper.README: New file.
+
+2005-05-17  verdammelt  <verdammelt@freya>
+
+	* NEWS: Adding note about unicode->utf8 fix
+
 2005-05-17  verdammelt  <verdammelt@freya>
 
         * Release v1.3.3
